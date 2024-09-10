@@ -1,76 +1,89 @@
-package application;
+public class HortaComunitaria {
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Scanner;
+    static class Planta {
+        String nome;
+        int quantidade;
+        int desperdicio;
 
-import entities.Employee;
+        Planta(String nome, int quantidade) {
+            this.nome = nome;
+            this.quantidade = quantidade;
+            this.desperdicio = 0;
+        }
 
-public class Program {
+        void registrarColheita(int quantidadeColhida) {
+            if (quantidadeColhida > quantidade) {
+                System.out.println("Quantidade colhida maior que o disponível. Ajustando.");
+                quantidadeColhida = quantidade;
+            }
+            quantidade -= quantidadeColhida;
+            desperdicio += quantidadeColhida - quantidade;
+        }
 
-	public static void main(String[] args) {
+        @Override
+        public String toString() {
+            return "Planta: " + nome + ", Quantidade disponível: " + quantidade + ", Desperdício: " + desperdicio;
+        }
+    }
 
-		Locale.setDefault(Locale.US);
-		Scanner sc = new Scanner(System.in);
+    public static void main(String[] args) {
+        ArrayList<Planta> plantas = new ArrayList<>();
+        Scanner scanner = new Scanner(System.in);
 
-		List<Employee> list = new ArrayList<>();
+        while (true) {
+            System.out.println("1. Adicionar Planta");
+            System.out.println("2. Registrar Colheita");
+            System.out.println("3. Mostrar Status da Horta");
+            System.out.println("4. Sair");
+            System.out.print("Escolha uma opção: ");
+            int opcao = scanner.nextInt();
+            scanner.nextLine();  // Limpar o buffer
 
-		System.out.print("How many employees will be registred ? ");
-		int N = sc.nextInt();
+            switch (opcao) {
+                case 1:
+                    System.out.print("Digite o nome da planta: ");
+                    String nome = scanner.nextLine();
+                    System.out.print("Digite a quantidade inicial: ");
+                    int quantidade = scanner.nextInt();
+                    plantas.add(new Planta(nome, quantidade));
+                    System.out.println("Planta adicionada com sucesso.");
+                    break;
 
-		for (int i = 1; i <= N; i++) {
-			System.out.println("Employee #" + i + ":");
+                case 2:
+                    System.out.print("Digite o nome da planta para colheita: ");
+                    nome = scanner.nextLine();
+                    Planta plantaParaColheita = null;
+                    for (Planta planta : plantas) {
+                        if (planta.nome.equals(nome)) {
+                            plantaParaColheita = planta;
+                            break;
+                        }
+                    }
+                    if (plantaParaColheita != null) {
+                        System.out.print("Digite a quantidade colhida: ");
+                        int quantidadeColhida = scanner.nextInt();
+                        plantaParaColheita.registrarColheita(quantidadeColhida);
+                        System.out.println("Colheita registrada com sucesso.");
+                    } else {
+                        System.out.println("Planta não encontrada.");
+                    }
+                    break;
 
-			System.out.print("Id: ");
-			Integer id = sc.nextInt();
-			while (hasId(list, id)) {
-				System.out.println("Id already taken! Try again: ");
-				id = sc.nextInt();
-			}
-			System.out.print("Name: ");
-			sc.nextLine();
-			String name = sc.nextLine();
-			System.out.print("Salary: ");
-			Double salary = sc.nextDouble();
-			System.out.println();
+                case 3:
+                    System.out.println("Status da Horta:");
+                    for (Planta planta : plantas) {
+                        System.out.println(planta);
+                    }
+                    break;
 
-			Employee emp = new Employee(id, name, salary);
+                case 4:
+                    System.out.println("Saindo...");
+                    scanner.close();
+                    return;
 
-			list.add(emp);
-
-		}
-
-		System.out.print("Enter the employee id that will  have salary increase: ");
-		int idSalary = sc.nextInt();
-		Integer pos = position(list, idSalary);
-		if (pos == null) {
-			System.out.println("This id does not exist!");
-		} else {
-			System.out.print("Enter the percentage: ");
-			double percent = sc.nextDouble();
-			list.get(pos).increaseSalary(percent);
-		}
-		System.out.println();
-		System.out.println("List of Employees: ");
-		for (Employee emp : list) {
-			System.out.println(emp);
-		}
-
-		sc.close();
-	}
-
-	public static Integer position(List<Employee> list, int id) {
-		for (int i = 0; i < list.size(); i++) {
-			if (list.get(i).getId() == id) {
-				return i;
-			}
-		}
-		return null;
-	}
-
-	public static boolean hasId(List<Employee> list, int id) {
-		Employee emp = list.stream().filter(x -> x.getId() == id).findFirst().orElse(null);
-		return emp != null;
-	}
+                default:
+                    System.out.println("Opção inválida. Tente novamente.");
+            }
+        }
+    }
 }
